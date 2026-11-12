@@ -68,6 +68,9 @@ button{cursor:pointer}
   font-size:.875rem;min-height:2.125rem;
 }
 .opcao[aria-pressed="true"]{background:var(--folha);border-color:var(--folha);color:var(--folha-tinta);font-weight:500}
+.opcao.mini{font-size:.8125rem;min-height:1.875rem;padding:.25rem .625rem}
+.sub{margin-top:.75rem;padding:.125rem 0 .125rem .875rem;border-left:2px solid var(--folha)}
+.sub h3{font:600 .8125rem/1.3 var(--texto);color:var(--suave);margin:0 0 .375rem}
 
 .barra{
   position:fixed;left:0;right:0;bottom:0;z-index:5;
@@ -77,6 +80,13 @@ button{cursor:pointer}
 .barra[hidden]{display:none}
 .barra-dentro{max-width:40rem;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1rem;color:var(--suave);font-size:.875rem}
 .barra button{border:0;background:var(--folha);color:var(--folha-tinta);font-weight:600;font-size:.875rem;padding:.5rem 1rem;border-radius:.5rem}
+.barra .botoes{display:flex;gap:.5rem;flex:none}
+.barra button.sec{background:none;color:var(--tinta);border:1px solid var(--linha)}
+.barra button.sec[hidden]{display:none}
+.obs-topo{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:.375rem}
+.obs-topo label{margin:0}
+.obs-topo .link{font-size:.8125rem}
+.obs-topo .link[hidden]{display:none}
 
 /* resumo */
 .comanda{background:var(--papel);border:1px solid var(--linha);border-radius:.75rem;padding:1.125rem 1.25rem}
@@ -98,7 +108,12 @@ button{cursor:pointer}
 /* opções */
 .lista{list-style:none;margin:0 0 .625rem;padding:0;border-top:1px solid var(--linha)}
 .lista:empty{display:none}
-.lista li{display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding:.25rem 0;border-bottom:1px solid var(--linha)}
+.lista > li{display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding:.25rem 0;border-bottom:1px solid var(--linha)}
+.lista > li.sub-ed{display:block;padding:.5rem 0 .75rem .875rem;border-left:2px solid var(--folha)}
+.qtd-sub{color:var(--suave);font-size:.8125rem;margin-left:.375rem}
+.sub-lista{list-style:none;margin:0 0 .5rem;padding:0}
+.sub-lista li{display:flex;align-items:center;justify-content:space-between;gap:.75rem;font-size:.875rem}
+.sub-ed .dica{margin:0 0 .375rem}
 .acoes-item{display:flex;flex:none;gap:.25rem}
 .acao,.remover{border:0;background:none;font-size:.8125rem;font-weight:500;padding:.375rem .5rem;border-radius:.375rem}
 .acao{color:var(--folha)}
@@ -128,12 +143,15 @@ button{cursor:pointer}
     <div class="tela" id="tela-resumo" hidden>
       <div class="comanda" id="comanda"></div>
       <div class="obs">
-        <label for="obs">Observações</label>
+        <div class="obs-topo">
+          <label for="obs">Observações</label>
+          <button type="button" class="link" id="limpar-obs" hidden>Limpar</button>
+        </div>
         <textarea id="obs" placeholder="Ex.: frango sem pimenta, arroz em porções pequenas"></textarea>
       </div>
       <div class="acoes">
         <button type="button" class="botao cheio" id="copiar">Copiar resumo</button>
-        <button type="button" class="botao" id="limpar">Limpar escolhas</button>
+        <button type="button" class="botao" id="limpar">Limpar escolhas e observações</button>
       </div>
       <p class="aviso" id="aviso" role="status"></p>
     </div>
@@ -145,7 +163,10 @@ button{cursor:pointer}
 <div class="barra" id="barra">
   <div class="barra-dentro">
     <span id="barra-texto"></span>
-    <button type="button" id="ver-resumo">Ver resumo</button>
+    <span class="botoes">
+      <button type="button" class="sec" id="limpar-barra" hidden>Limpar</button>
+      <button type="button" id="ver-resumo">Ver resumo</button>
+    </span>
   </div>
 </div>
 
@@ -155,6 +176,7 @@ button{cursor:pointer}
     {id:'proteinas', nome:'Proteína', singular:'proteína'},
     {id:'saladas', nome:'Salada', singular:'salada'},
     {id:'acompanhamentos', nome:'Acompanhamento', singular:'acompanhamento'},
+    {id:'frutas', nome:'Fruta', singular:'fruta'},
     {id:'extras', nome:'Extra', singular:'extra'},
     {id:'preparacoes', nome:'Preparação', singular:'preparação'}
   ];
@@ -165,7 +187,19 @@ button{cursor:pointer}
     saladas: ['Alface','Rúcula','Agrião','Espinafre','Couve fininha (crua)','Repolho fatiado','Tomate','Pepino','Cenoura ralada','Beterraba (cozida ou crua)','Cebola roxa fatiada','Rabanete fatiado','Palmito','Milho','Grão-de-bico cozido','Manga em cubos'],
     acompanhamentos: ['Arroz branco','Arroz integral','Arroz à grega','Feijão carioca','Feijão preto','Lentilha','Mandioca cozida','Purê de mandioca','Batata-doce assada','Purê de batata-doce','Batata inglesa assada','Batata cozida','Batata sauté','Purê de batata inglesa','Purê de batata-baroa','Quinoa','Nhoque','Farofa temperada','Purê de abóbora','Brócolis no vapor','Brócolis salteado','Arroz de brócolis','Couve refogada','Vagem refogada','Vagem com ovos','Vagem com cenoura','Aspargos grelhados','Couve-flor assada','Couve-flor salteada','Repolho refogado','Abóbora assada','Cenoura assada','Berinjela com tomate','Abobrinha grelhada','Pimentão salteado','Chuchu refogado','Jiló refogado','Rabanete salteado','Cogumelos salteados','Quiabo refogado','Milho na manteiga','Legumes grelhados','Legumes assados'],
     extras: ['Marinada de frango','Bife de boi temperado','Tabuleiro de peixe com legumes','Carne para ensopado temperada','Legumes fatiados para salteado','Kafta moldada crua','Tabuleiro de frango com batatas','Marinada de peixe','Feijoada completa','Tropeiro','Moqueca de peixe','Vaca atolada','Baião de dois','Galinhada','Fricassê de frango','Escondidinho de carne','Escondidinho de frango','Escondidinho de mandioca com carne seca'],
-    preparacoes: ['Marinada de frango','Bifes temperados para passar','Lasanha montada']
+    preparacoes: ['Marinada de frango','Bifes temperados para passar','Lasanha montada'],
+    frutas: ['Abacaxi picado','Manga picada','Mamão picado','Melão picado','Melancia picada','Morango lavado','Uva lavada','Kiwi picado','Laranja descascada','Salada de frutas']
+  };
+
+  // Itens de sub-seleção: ao marcar a opção, aparecem estes itens para escolher.
+  var PADRAO_SUBS = {
+    acompanhamentos: {
+      'Legumes grelhados': ['Abobrinha','Berinjela','Pimentão','Cebola','Cenoura','Aspargos','Cogumelos','Tomate','Chuchu','Brócolis'],
+      'Legumes assados': ['Abóbora','Cenoura','Batata','Batata-doce','Beterraba','Cebola','Couve-flor','Brócolis','Pimentão','Abobrinha','Berinjela']
+    },
+    frutas: {
+      'Salada de frutas': ['Abacaxi','Manga','Mamão','Melão','Banana','Maçã','Morango','Uva','Kiwi','Laranja']
+    }
   };
 
   var CHAVE = 'meu-menu-v3';
@@ -191,18 +225,46 @@ button{cursor:pointer}
         }
       }
     }catch(e){}
+    var subsNovos = !base.subs || typeof base.subs !== 'object';
+    if(subsNovos) base.subs = {};
+    if(!base.subEscolhas || typeof base.subEscolhas !== 'object') base.subEscolhas = {};
     CATS.forEach(function(c){
       if(!Array.isArray(base.opcoes[c.id])) base.opcoes[c.id] = (PADRAO[c.id] || []).slice();
       if(!Array.isArray(base.escolhas[c.id])) base.escolhas[c.id] = [];
+      if(!base.subs[c.id] || typeof base.subs[c.id] !== 'object') base.subs[c.id] = {};
+      if(!base.subEscolhas[c.id] || typeof base.subEscolhas[c.id] !== 'object') base.subEscolhas[c.id] = {};
+      // Primeira vez com sub-seleção: traz os itens padrão das opções que existem.
+      if(subsNovos){
+        var p = PADRAO_SUBS[c.id] || {};
+        Object.keys(p).forEach(function(nome){
+          if(base.opcoes[c.id].indexOf(nome) > -1) base.subs[c.id][nome] = p[nome].slice();
+        });
+      }
     });
     if(typeof base.obs !== 'string') base.obs = '';
     ordenar(base);
     return base;
   }
+  function compara(x, y){ return x.localeCompare(y, 'pt-BR', {sensitivity:'base'}); }
   function ordenar(e){
     CATS.forEach(function(c){
-      e.opcoes[c.id].sort(function(x, y){ return x.localeCompare(y, 'pt-BR', {sensitivity:'base'}); });
+      e.opcoes[c.id].sort(compara);
+      Object.keys(e.subs[c.id]).forEach(function(k){ e.subs[c.id][k].sort(compara); });
     });
+  }
+  function subsDe(cat, nome){ return estado.subs[cat][nome] || []; }
+  function subEsc(cat, nome){
+    var m = estado.subEscolhas[cat];
+    if(!Array.isArray(m[nome])) m[nome] = [];
+    return m[nome];
+  }
+  function subsEscolhidos(cat, nome){
+    var esc = subEsc(cat, nome);
+    return subsDe(cat, nome).filter(function(s){ return esc.indexOf(s) > -1; });
+  }
+  function rotulo(cat, nome){
+    var s = subsEscolhidos(cat, nome);
+    return s.length ? nome + ' (' + s.join(', ') + ')' : nome;
   }
   function salvar(){
     ordenar(estado);
@@ -243,7 +305,8 @@ button{cursor:pointer}
         var caixa = el('div', {'class':'opcoes'});
         estado.opcoes[c.id].forEach(function(nome){
           var marcado = estado.escolhas[c.id].indexOf(nome) > -1;
-          var bt = el('button', {'type':'button','class':'opcao','aria-pressed': String(marcado)}, nome);
+          var nSub = marcado ? subsEscolhidos(c.id, nome).length : 0;
+          var bt = el('button', {'type':'button','class':'opcao','aria-pressed': String(marcado)}, nome + (nSub ? ' · ' + nSub : ''));
           bt.addEventListener('click', function(){
             var i = estado.escolhas[c.id].indexOf(nome);
             if(i > -1) estado.escolhas[c.id].splice(i,1); else estado.escolhas[c.id].push(nome);
@@ -252,6 +315,28 @@ button{cursor:pointer}
           caixa.appendChild(bt);
         });
         grupo.appendChild(caixa);
+
+        // Sub-seleção das opções marcadas que têm itens
+        escolhidasEmOrdem(c).forEach(function(nome){
+          var itens = subsDe(c.id, nome);
+          if(!itens.length) return;
+          var sub = el('div', {'class':'sub'});
+          sub.appendChild(el('h3', null, nome + ': quais?'));
+          var cx = el('div', {'class':'opcoes'});
+          itens.forEach(function(item){
+            var esc = subEsc(c.id, nome);
+            var bt = el('button', {'type':'button','class':'opcao mini','aria-pressed': String(esc.indexOf(item) > -1)}, item);
+            bt.addEventListener('click', function(){
+              var lista = subEsc(c.id, nome);
+              var i = lista.indexOf(item);
+              if(i > -1) lista.splice(i,1); else lista.push(item);
+              salvar(); desenharEscolher();
+            });
+            cx.appendChild(bt);
+          });
+          sub.appendChild(cx);
+          grupo.appendChild(sub);
+        });
       }
       telaEscolher.appendChild(grupo);
     });
@@ -275,12 +360,13 @@ button{cursor:pointer}
         s.appendChild(el('p', {'class':'nada','style':'margin:0'}, 'Nada escolhido'));
       } else {
         var ul = el('ul');
-        itens.forEach(function(n){ ul.appendChild(el('li', null, n)); });
+        itens.forEach(function(n){ ul.appendChild(el('li', null, rotulo(c.id, n))); });
         s.appendChild(ul);
       }
       comanda.appendChild(s);
     });
     obs.value = estado.obs;
+    mostrarLimparObs();
     aviso.textContent = '';
   }
   function textoResumo(){
@@ -290,7 +376,7 @@ button{cursor:pointer}
       if(itens.length){
         linhas.push('');
         linhas.push(c.nome + ':');
-        itens.forEach(function(n){ linhas.push('- ' + n); });
+        itens.forEach(function(n){ linhas.push('- ' + rotulo(c.id, n)); });
       }
     });
     if(estado.obs.trim()){
@@ -298,7 +384,38 @@ button{cursor:pointer}
     }
     return linhas.join('\n');
   }
-  obs.addEventListener('input', function(){ estado.obs = obs.value; salvar(); });
+  var limparObs = document.getElementById('limpar-obs');
+  function mostrarLimparObs(){ limparObs.hidden = !estado.obs; }
+  obs.addEventListener('input', function(){ estado.obs = obs.value; salvar(); mostrarLimparObs(); });
+  limparObs.addEventListener('click', function(){
+    guarda = {escolhas: estado.escolhas, subEscolhas: estado.subEscolhas, obs: estado.obs, soObs: true};
+    guarda = JSON.parse(JSON.stringify(guarda));
+    estado.obs = ''; salvar();
+    obs.value = ''; mostrarLimparObs();
+    avisoDesfazer('Observações limpas.');
+  });
+
+  // Limpar com opção de desfazer
+  var guarda = null;
+  function limparTudo(){
+    guarda = JSON.parse(JSON.stringify({escolhas: estado.escolhas, subEscolhas: estado.subEscolhas, obs: estado.obs}));
+    CATS.forEach(function(c){ estado.escolhas[c.id] = []; estado.subEscolhas[c.id] = {}; });
+    estado.obs = '';
+    salvar();
+  }
+  function desfazer(){
+    if(!guarda) return;
+    if(guarda.soObs){ estado.obs = guarda.obs; }
+    else { estado.escolhas = guarda.escolhas; estado.subEscolhas = guarda.subEscolhas; estado.obs = guarda.obs; }
+    guarda = null;
+    salvar();
+  }
+  function avisoDesfazer(msg){
+    aviso.textContent = msg + ' ';
+    var b = el('button', {'type':'button','class':'link'}, 'Desfazer');
+    b.addEventListener('click', function(){ desfazer(); desenharResumo(); desenharBarra(); aviso.textContent = 'Restaurado.'; });
+    aviso.appendChild(b);
+  }
 
   document.getElementById('copiar').addEventListener('click', function(){
     if(!total()){ aviso.textContent = 'Escolha pelo menos uma opção antes de copiar.'; return; }
@@ -317,16 +434,63 @@ button{cursor:pointer}
   });
 
   document.getElementById('limpar').addEventListener('click', function(){
-    CATS.forEach(function(c){ estado.escolhas[c.id] = []; });
-    estado.obs = '';
-    salvar(); desenharResumo(); desenharBarra();
-    aviso.textContent = 'Escolhas limpas.';
+    if(!total() && !estado.obs){ aviso.textContent = 'Nada para limpar.'; return; }
+    limparTudo();
+    desenharResumo(); desenharBarra();
+    avisoDesfazer('Escolhas e observações limpas.');
   });
 
   /* ---------- Opções ---------- */
   var telaOpcoes = document.getElementById('tela-opcoes');
   var editando = null;
-  function desenharOpcoes(focarEm){
+  var abertoSub = null;
+
+  // Painel para editar os itens de sub-seleção de uma opção
+  function painelSub(c, nome){
+    var li = el('li', {'class':'sub-ed'});
+    var itens = subsDe(c.id, nome);
+    li.appendChild(el('p', {'class':'dica'}, itens.length
+      ? 'Ao marcar "' + nome + '", você escolhe entre estes itens:'
+      : 'Adicione itens para escolher quais entram em "' + nome + '".'));
+    if(itens.length){
+      var ul = el('ul', {'class':'sub-lista'});
+      itens.forEach(function(item){
+        var l = el('li');
+        l.appendChild(el('span', null, item));
+        var r = el('button', {'type':'button','class':'remover','aria-label':'Remover ' + item}, 'Remover');
+        r.addEventListener('click', function(){
+          estado.subs[c.id][nome] = subsDe(c.id, nome).filter(function(x){ return x !== item; });
+          if(!estado.subs[c.id][nome].length) delete estado.subs[c.id][nome];
+          var esc = subEsc(c.id, nome), i = esc.indexOf(item);
+          if(i > -1) esc.splice(i,1);
+          salvar(); desenharOpcoes(null, true);
+        });
+        l.appendChild(r);
+        ul.appendChild(l);
+      });
+      li.appendChild(ul);
+    }
+    var linha = el('div', {'class':'novo'});
+    var campo = el('input', {'type':'text','id':'novo-sub','placeholder':'Novo item','aria-label':'Novo item em ' + nome,'maxlength':'60','autocomplete':'off'});
+    var add = el('button', {'type':'button','class':'botao cheio'}, 'Adicionar');
+    function adicionar(){
+      var item = campo.value.trim().replace(/\s+/g,' ');
+      if(!item){ campo.focus(); return; }
+      var lista = subsDe(c.id, nome);
+      if(lista.some(function(x){ return x.toLowerCase() === item.toLowerCase(); })){
+        campo.value = ''; campo.setAttribute('placeholder','Esse item já existe'); campo.focus(); return;
+      }
+      estado.subs[c.id][nome] = lista.concat([item]);
+      salvar(); desenharOpcoes(null, true);
+    }
+    add.addEventListener('click', adicionar);
+    campo.addEventListener('keydown', function(e){ if(e.key === 'Enter'){ e.preventDefault(); adicionar(); } });
+    linha.appendChild(campo); linha.appendChild(add);
+    li.appendChild(linha);
+    return li;
+  }
+
+  function desenharOpcoes(focarEm, focarSub){
     telaOpcoes.textContent = '';
     var campoFoco = null;
     CATS.forEach(function(c){
@@ -350,6 +514,10 @@ button{cursor:pointer}
             if(existe){ campoEd.value = ''; campoEd.setAttribute('placeholder','Essa opção já existe'); campoEd.focus(); return; }
             estado.opcoes[c.id] = estado.opcoes[c.id].map(function(n){ return n === nome ? novo : n; });
             estado.escolhas[c.id] = estado.escolhas[c.id].map(function(n){ return n === nome ? novo : n; });
+            [estado.subs[c.id], estado.subEscolhas[c.id]].forEach(function(m){
+              if(novo !== nome && m[nome]){ m[novo] = m[nome]; delete m[nome]; }
+            });
+            if(abertoSub && abertoSub.cat === c.id && abertoSub.nome === nome) abertoSub.nome = novo;
             editando = null;
             salvar(); desenharOpcoes();
           }
@@ -367,20 +535,34 @@ button{cursor:pointer}
           campoFoco = campoEd;
           return;
         }
-        li.appendChild(el('span', null, nome));
+        var aberto = abertoSub && abertoSub.cat === c.id && abertoSub.nome === nome;
+        var nomeEl = el('span', null, nome);
+        var qtd = subsDe(c.id, nome).length;
+        if(qtd) nomeEl.appendChild(el('span', {'class':'qtd-sub'}, qtd + (qtd === 1 ? ' item' : ' itens')));
+        li.appendChild(nomeEl);
         var acoesItem = el('span', {'class':'acoes-item'});
+        var it = el('button', {'type':'button','class':'acao neutra','aria-expanded': String(!!aberto),'aria-label':'Itens de ' + nome}, aberto ? 'Fechar' : 'Itens');
+        it.addEventListener('click', function(){
+          abertoSub = aberto ? null : {cat:c.id, nome:nome};
+          editando = null;
+          desenharOpcoes(null, !aberto);
+        });
         var ed = el('button', {'type':'button','class':'acao','aria-label':'Editar ' + nome}, 'Editar');
         ed.addEventListener('click', function(){ editando = {cat:c.id, nome:nome}; desenharOpcoes(); });
         var r = el('button', {'type':'button','class':'remover','aria-label':'Remover ' + nome}, 'Remover');
         r.addEventListener('click', function(){
           estado.opcoes[c.id] = estado.opcoes[c.id].filter(function(n){ return n !== nome; });
           estado.escolhas[c.id] = estado.escolhas[c.id].filter(function(n){ return n !== nome; });
+          delete estado.subs[c.id][nome];
+          delete estado.subEscolhas[c.id][nome];
+          if(aberto) abertoSub = null;
           editando = null;
           salvar(); desenharOpcoes(); desenharBarra();
         });
-        acoesItem.appendChild(ed); acoesItem.appendChild(r);
+        acoesItem.appendChild(it); acoesItem.appendChild(ed); acoesItem.appendChild(r);
         li.appendChild(acoesItem);
         ul.appendChild(li);
+        if(aberto) ul.appendChild(painelSub(c, nome));
       });
       grupo.appendChild(ul);
 
@@ -417,6 +599,7 @@ button{cursor:pointer}
     telaOpcoes.appendChild(exportar);
 
     if(focarEm){ var f = document.getElementById('novo-' + focarEm); if(f) f.focus(); }
+    if(focarSub){ var fs = document.getElementById('novo-sub'); if(fs) fs.focus(); }
     if(campoFoco){ campoFoco.focus(); campoFoco.select(); }
   }
 
@@ -425,7 +608,10 @@ button{cursor:pointer}
     CATS.forEach(function(c){
       linhas.push('');
       linhas.push(c.nome + ' (' + estado.opcoes[c.id].length + '):');
-      estado.opcoes[c.id].forEach(function(n){ linhas.push('- ' + n); });
+      estado.opcoes[c.id].forEach(function(n){
+        var s = subsDe(c.id, n);
+        linhas.push('- ' + n + (s.length ? ': ' + s.join(', ') : ''));
+      });
     });
     return linhas.join('\n');
   }
@@ -451,8 +637,16 @@ button{cursor:pointer}
   function desenharBarra(){
     var n = total();
     barra.hidden = telaAtual !== 'escolher';
-    barraTexto.textContent = n === 0 ? 'Nada escolhido ainda' : (n === 1 ? '1 item escolhido' : n + ' itens escolhidos');
+    var podeDesfazer = guarda && !guarda.soObs && n === 0;
+    barraTexto.textContent = podeDesfazer ? 'Escolhas limpas' : (n === 0 ? 'Nada escolhido ainda' : (n === 1 ? '1 item escolhido' : n + ' itens escolhidos'));
+    limparBarra.hidden = !(n > 0 || estado.obs || podeDesfazer);
+    limparBarra.textContent = podeDesfazer ? 'Desfazer' : 'Limpar';
   }
+  var limparBarra = document.getElementById('limpar-barra');
+  limparBarra.addEventListener('click', function(){
+    if(guarda && !guarda.soObs && total() === 0) desfazer(); else limparTudo();
+    desenharEscolher(); desenharBarra();
+  });
   function mostrar(nome){
     telaAtual = nome;
     ['escolher','resumo','opcoes'].forEach(function(t){
@@ -464,7 +658,7 @@ button{cursor:pointer}
     });
     if(nome === 'escolher') desenharEscolher();
     if(nome === 'resumo') desenharResumo();
-    if(nome === 'opcoes'){ editando = null; desenharOpcoes(); }
+    if(nome === 'opcoes'){ editando = null; abertoSub = null; desenharOpcoes(); }
     desenharBarra();
     window.scrollTo(0,0);
   }
